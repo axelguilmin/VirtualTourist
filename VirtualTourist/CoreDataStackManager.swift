@@ -9,6 +9,9 @@ import Foundation
 import CoreData
 
 private let SQLITE_FILE_NAME = "VirtualTourist.sqlite"
+private let MOMD_FILE_NAME = "VirtualTourist"
+
+let sharedContext = CoreDataStackManager.sharedInstance().managedObjectContext!
 
 class CoreDataStackManager {
 	
@@ -36,7 +39,7 @@ class CoreDataStackManager {
 
         println("Instantiating the managedObjectModel property")
         
-        let modelURL = NSBundle.mainBundle().URLForResource("Model", withExtension: "momd")!
+        let modelURL = NSBundle.mainBundle().URLForResource(MOMD_FILE_NAME, withExtension: "momd")!
         return NSManagedObjectModel(contentsOfURL: modelURL)!
         }()
 	

@@ -8,13 +8,14 @@
 
 import UIKit
 import MapKit
+import CoreData
 
 // MARK: Const
 
-private let userDefaultMapPositionKey = "MapRegion"
+private let USER_DEFAULT_MAP_POSITION_KEY = "MapRegion"
 
 class TravelLocationsMapViewController: ViewController, MKMapViewDelegate {
-
+	
 	// MARK: Outlet
 	
 	@IBOutlet weak var mapView: MKMapView!
@@ -26,18 +27,29 @@ class TravelLocationsMapViewController: ViewController, MKMapViewDelegate {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
+		// Not editing at first
 		editing = false
 		
 		// Reload map position
 		let userDefault = NSUserDefaults.standardUserDefaults()
-		if let regionDict = userDefault.objectForKey(userDefaultMapPositionKey) as? Dictionary<String,CLLocationDegrees> {
+		if let regionDict = userDefault.objectForKey(USER_DEFAULT_MAP_POSITION_KEY) as? Dictionary<String,CLLocationDegrees> {
 			let region = MKCoordinateRegion(dictionary:regionDict)
 			mapView.setRegion(region, animated: false)
 		}
 		
-		// Detect long press to add a new pin
+		// Detect long press to add a new pins
 		let addPinGestureRecognzier = UILongPressGestureRecognizer(target: self, action: "handleLongPress:")
 		mapView.addGestureRecognizer(addPinGestureRecognzier);
+		
+		// Load existing pins
+		let fetchRequest = NSFetchRequest(entityName: "Pin")
+		fetchRequest.includesSubentities = false;
+		if let pins = sharedContext.executeFetchRequest(fetchRequest, error:nil) as? [Pin] {
+			for pin in pins {
+				let annotation = PinAnnotation(pin);
+				mapView.addAnnotation(annotation)
+			}
+		}
 	}
 
 	// MARK: IBAction
@@ -50,7 +62,7 @@ class TravelLocationsMapViewController: ViewController, MKMapViewDelegate {
 	
 	override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
 		if segue.identifier == "showPhotoAlbum" {
-			if let selectedAnnotation = mapView.selectedAnnotations.first as? MKAnnotation {
+			if let selectedAnnotation = mapView.selectedAnnotations.first as? PinAnnotation {
 			let albumVC = segue.destinationViewController as! PhotoAlbumViewController
 			albumVC.annotation = selectedAnnotation
 			mapView.deselectAnnotation(selectedAnnotation, animated: true)
@@ -68,18 +80,40 @@ class TravelLocationsMapViewController: ViewController, MKMapViewDelegate {
 	// MARK: Method
 	
 	func handleLongPress(gestureRecognizer:UIGestureRecognizer) {
-		// Ignore long press while editing
+		// Ignore long presses while editing
 		if editing { return }
 		
+		struct Static {
+			static var annotation:PinAnnotation?
+		}
+		
 		switch(gestureRecognizer.state) {
-		case .Began:
+		case .Began: // Create the annotation
 			let touchPoint = gestureRecognizer.locationInView(mapView)
 			let touchMapCoordinate = mapView.convertPoint(touchPoint, toCoordinateFromView: mapView)
-			var annotation = MKPointAnnotation();
-			annotation.coordinate = touchMapCoordinate
-			mapView.addAnnotation(annotation)
-			break
-		default:
+			Static.annotation = PinAnnotation();
+			Static.annotation!.coordinate = touchMapCoordinate
+			mapView.addAnnotation(Static.annotation)
+			
+		case .Changed: // Move it
+			let touchPoint = gestureRecognizer.locationInView(mapView)
+			let touchMapCoordinate = mapView.convertPoint(touchPoint, toCoordinateFromView: mapView)
+			Static.annotation!.coordinate = touchMapCoordinate
+			
+		case .Ended: // Save to CoreData
+			let pin = Pin(coordinate: Static.annotation!.coordinate, context: sharedContext)
+			Static.annotation!.pin = pin
+			CoreDataStackManager.sharedInstance().saveContext()
+			
+		case .Cancelled: // Remove
+			mapView.removeAnnotation(Static.annotation)
+			Static.annotation = nil
+			
+		case .Failed: // Remove
+			mapView.removeAnnotation(Static.annotation)
+			Static.annotation = nil
+			
+		default: // Nothing
 			break
 		}
 	}
@@ -94,7 +128,6 @@ class TravelLocationsMapViewController: ViewController, MKMapViewDelegate {
 		if pinView == nil {
 			pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reuseId)
 			pinView!.animatesDrop = true
-			pinView!.pinColor = .Red
 		}
 		else {
 			pinView!.annotation = annotation
@@ -106,7 +139,10 @@ class TravelLocationsMapViewController: ViewController, MKMapViewDelegate {
 	// Respond to taps, opens the photo album VC
 	func mapView(mapView: MKMapView!, didSelectAnnotationView view: MKAnnotationView!) {
 		if editing {
-			mapView.removeAnnotation(view.annotation)
+			let annotation = view.annotation as! PinAnnotation
+			sharedContext.deleteObject(annotation.pin)
+			CoreDataStackManager.sharedInstance().saveContext()
+			mapView.removeAnnotation(annotation)
 		}
 		else {
 			performSegueWithIdentifier("showPhotoAlbum", sender: self)
@@ -118,6 +154,6 @@ class TravelLocationsMapViewController: ViewController, MKMapViewDelegate {
 		// Save map position
 		let userDefault = NSUserDefaults.standardUserDefaults()
 		let regionDict = mapView.region.asDictionary()
-		userDefault.setObject(regionDict, forKey: userDefaultMapPositionKey)
+		userDefault.setObject(regionDict, forKey: USER_DEFAULT_MAP_POSITION_KEY)
 	}
 }

@@ -13,14 +13,14 @@ class PhotoAlbumViewController: ViewController, UICollectionViewDelegate, UIColl
 	
 	// MARK: Var
 	
-	var annotation: MKAnnotation!
+	var annotation: PinAnnotation!
 	
 	// MARK: IBOutlet
 	
 	@IBOutlet weak var mapView: MKMapView!
 	@IBOutlet weak var collectionView: UICollectionView!
 	
-	// MARK: Layout
+	// MARK: Life Cycle
 	
 	override func viewWillAppear(animated: Bool) {
 		super.viewWillAppear(animated)

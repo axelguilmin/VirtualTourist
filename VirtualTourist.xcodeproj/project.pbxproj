@@ -21,6 +21,8 @@
 		7723750D1BA1B188009C391D /* MKCoordinateRegion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7723750C1BA1B188009C391D /* MKCoordinateRegion.swift */; };
 		7723750F1BA1D941009C391D /* PhotoCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7723750E1BA1D941009C391D /* PhotoCollectionViewCell.swift */; };
 		772375111BA1E368009C391D /* PhotoAlbumCollectionViewFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 772375101BA1E368009C391D /* PhotoAlbumCollectionViewFlowLayout.swift */; };
+		772375151BA20644009C391D /* Pin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 772375141BA20644009C391D /* Pin.swift */; };
+		772375171BA20FF1009C391D /* PinAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 772375161BA20FF1009C391D /* PinAnnotation.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,6 +54,8 @@
 		7723750C1BA1B188009C391D /* MKCoordinateRegion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MKCoordinateRegion.swift; sourceTree = "<group>"; };
 		7723750E1BA1D941009C391D /* PhotoCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoCollectionViewCell.swift; sourceTree = "<group>"; };
 		772375101BA1E368009C391D /* PhotoAlbumCollectionViewFlowLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoAlbumCollectionViewFlowLayout.swift; sourceTree = "<group>"; };
+		772375141BA20644009C391D /* Pin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Pin.swift; sourceTree = "<group>"; };
+		772375161BA20FF1009C391D /* PinAnnotation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PinAnnotation.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,6 +138,8 @@
 		772374FF1BA19DC7009C391D /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				772375141BA20644009C391D /* Pin.swift */,
+				772375161BA20FF1009C391D /* PinAnnotation.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -277,7 +283,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				772375171BA20FF1009C391D /* PinAnnotation.swift in Sources */,
 				772375111BA1E368009C391D /* PhotoAlbumCollectionViewFlowLayout.swift in Sources */,
+				772375151BA20644009C391D /* Pin.swift in Sources */,
 				7723750D1BA1B188009C391D /* MKCoordinateRegion.swift in Sources */,
 				7723750F1BA1D941009C391D /* PhotoCollectionViewCell.swift in Sources */,
 				7723750A1BA1A030009C391D /* ViewController.swift in Sources */,
@@ -416,6 +424,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = VirtualTourist/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -426,6 +435,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = VirtualTourist/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
