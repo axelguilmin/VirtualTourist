@@ -17,7 +17,7 @@ import UIKit
 	}
 	
 	lazy var photoWidth:CGFloat = {
-		let totalMargins = CGFloat(self.columns + 1) * self.minimumInteritemSpacing
+		let totalMargins = CGFloat(self.columns + 1) * self.minimumInteritemSpacing + 0.5
 		return (UIScreen.mainScreen().bounds.width - totalMargins) / CGFloat(self.columns)
 		}()
 }
