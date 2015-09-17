@@ -50,6 +50,7 @@ class TravelLocationsMapViewController: ViewController, MKMapViewDelegate {
 				mapView.addAnnotation(annotation)
 			}
 		}
+		
 	}
 
 	// MARK: IBAction
@@ -101,9 +102,12 @@ class TravelLocationsMapViewController: ViewController, MKMapViewDelegate {
 			Static.annotation!.coordinate = touchMapCoordinate
 			
 		case .Ended: // Save to CoreData
-			let pin = Pin(coordinate: Static.annotation!.coordinate, context: sharedContext)
-			Static.annotation!.pin = pin
-			CoreDataStackManager.sharedInstance().saveContext()
+			dispatch_async(dispatch_get_main_queue()) {
+				let pin = Pin(coordinate: Static.annotation!.coordinate, context: sharedContext)
+				Static.annotation!.pin = pin
+				CoreDataStackManager.sharedInstance().saveContext()
+				pin.searchPhotoNearPin()
+			}
 			
 		case .Cancelled: // Remove
 			mapView.removeAnnotation(Static.annotation)
@@ -140,7 +144,8 @@ class TravelLocationsMapViewController: ViewController, MKMapViewDelegate {
 	func mapView(mapView: MKMapView!, didSelectAnnotationView view: MKAnnotationView!) {
 		if editing {
 			let annotation = view.annotation as! PinAnnotation
-			sharedContext.deleteObject(annotation.pin)
+			
+			CoreDataStackManager.sharedInstance().delete(annotation.pin)
 			CoreDataStackManager.sharedInstance().saveContext()
 			mapView.removeAnnotation(annotation)
 		}

@@ -15,10 +15,9 @@ import MapKit
 
 class Pin: NSManagedObject {
 
-    @NSManaged var latitude: Double
-    @NSManaged var longitude: Double
-    @NSManaged var id: Int64
-    @NSManaged var photos: NSManagedObject
+    @NSManaged var latitude: CLLocationDegrees
+    @NSManaged var longitude: CLLocationDegrees
+    @NSManaged var photos: NSSet
 
 	var coordinate:CLLocationCoordinate2D {
 		get {
@@ -40,5 +39,13 @@ class Pin: NSManagedObject {
 		self.init(entity: entity, insertIntoManagedObjectContext: context)
 		
 		self.coordinate = coordinate
+	}
+	
+	func addPhoto(photo:Photo) {
+		if deleted { return }
+		
+		var photos = self.mutableSetValueForKey("photos")
+		photos.addObject(photo)
+		photo.pin = self
 	}
 }

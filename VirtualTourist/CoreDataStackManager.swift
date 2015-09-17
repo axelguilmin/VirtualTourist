@@ -28,29 +28,23 @@ class CoreDataStackManager {
     // MARK: - Core Data stack
     
     lazy var applicationDocumentsDirectory: NSURL = {
-        
-        println("Instantiating the applicationDocumentsDirectory property")
-        
+		
         let urls = NSFileManager.defaultManager().URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)
         return urls[urls.count-1] as! NSURL
         }()
     
     lazy var managedObjectModel: NSManagedObjectModel = {
-
-        println("Instantiating the managedObjectModel property")
-        
+		
         let modelURL = NSBundle.mainBundle().URLForResource(MOMD_FILE_NAME, withExtension: "momd")!
         return NSManagedObjectModel(contentsOfURL: modelURL)!
         }()
 	
     lazy var persistentStoreCoordinator: NSPersistentStoreCoordinator? = {
-
-        println("Instantiating the persistentStoreCoordinator property")
-        
+		
         var coordinator: NSPersistentStoreCoordinator? = NSPersistentStoreCoordinator(managedObjectModel: self.managedObjectModel)
         let url = self.applicationDocumentsDirectory.URLByAppendingPathComponent(SQLITE_FILE_NAME)
         
-        println("sqlite path: \(url.path!)")
+        println("CoreDataStackManager sqlite path: \(url.path!)")
         
         var error: NSError? = nil
 
@@ -73,13 +67,13 @@ class CoreDataStackManager {
     
     lazy var managedObjectContext: NSManagedObjectContext? = {
         
-        println("Instantiating the managedObjectContext property")
+        println("CoreDataStackManager create managedObjectContext")
 
         let coordinator = self.persistentStoreCoordinator
         if coordinator == nil {
             return nil
         }
-        var managedObjectContext = NSManagedObjectContext()
+        var managedObjectContext = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType)
         managedObjectContext.persistentStoreCoordinator = coordinator
         return managedObjectContext
         }()
@@ -87,15 +81,25 @@ class CoreDataStackManager {
     // MARK: - Core Data Saving support
     
     func saveContext () {
+		
+		println("CoreDataStackManager saveContext")
+		if let context = self.managedObjectContext {
+			
+			dispatch_async(dispatch_get_main_queue()) {
+				var error: NSError? = nil
 
-        if let context = self.managedObjectContext {
-        
-            var error: NSError? = nil
-            
-            if context.hasChanges && !context.save(&error) {
-                NSLog("Unresolved error \(error), \(error!.userInfo)")
-                abort()
-            }
-        }
-    }
+				if context.hasChanges && !context.save(&error) {
+					NSLog("Unresolved error \(error), \(error!.userInfo)")
+					abort()
+				}
+			}
+		}
+	}
+	
+	func delete(object:NSManagedObject) {
+		// TODO: use NSBatchDeleteRequest on iOS9
+		dispatch_async(dispatch_get_main_queue()) {
+			sharedContext.deleteObject(object)
+		}
+	}
 }
