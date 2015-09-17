@@ -145,8 +145,11 @@ class PhotoAlbumViewController: ViewController, UICollectionViewDelegate, UIColl
 		if sectionInfo.numberOfObjects > 0 {
 			status = .loaded
 		}
+		else if annotation.pin.searchingTask != nil && annotation.pin.searchingTask!.state != .Completed {
+			status = .loading
+		}
 		else {
-			status = annotation.pin.searchingTask?.state != .Completed ? .loading : .empty
+			status = .empty
 		}
 		return sectionInfo.numberOfObjects
 	}
